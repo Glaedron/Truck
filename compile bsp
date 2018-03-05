@@ -1,0 +1,8 @@
+sdl2: g++ -std=c++0x -Wall -pedantic /home/pi/Truck/Main.cpp -o /home/pi/Truck/Truck `sdl2-config --cflags --libs` -lSDL2_image
+
+wiringpi: g++ -g /home/pi/Truck/Main.cpp -o /home/pi/Truck/Truck -lwiringPi -lpthread
+
+opencv: g++ $(pkg-config --libs --cflags opencv) -o SimpleGrab SimpleGrab.cpp
+
+
+wiringpi + sdl2: g++ -std=c++0x -Wall -pedantic /home/pi/Truck/Main.cpp -o /home/pi/Truck/Truck -lwiringPi -lpthread `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf
