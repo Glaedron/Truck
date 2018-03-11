@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2//SDL_ttf.h>
 #include <sstream>
+//#include "Camera.h"
 
 class GUI
 {
@@ -13,7 +14,7 @@ class GUI
   void Event ();
   void Display (long double a, long double  b,long double  c,long double d,long double e);
   void RenderText (long double Dis, int x, int y);
-  void RenderTexture (SDL_Texture* Tex, int x, int y);
+  void RenderTruck (SDL_Texture* Tex, int x, int y);
 
   private:
 
@@ -27,10 +28,13 @@ class GUI
   TTF_Font* _Font = nullptr;
   SDL_Rect Message_rect;
   SDL_Rect _TruckRect;
+  SDL_Rect _TextboxRect;
   SDL_Surface* text;
   SDL_Texture* Message;
   SDL_Texture* _Truck;
-  SDL_Color textColor = {255, 127, 31};
+  SDL_Color textColor = {0, 0, 0};
+  //Camera _Cam;
+  //SDL_Texture* _Stream;
 };
 
 bool GUI::init = 0;
@@ -54,7 +58,7 @@ GUI::GUI ()
       std::cout <<" error ttf"<< std::endl;
     }
 
-    _Font = TTF_OpenFont ("FreeSans.ttf", 30);
+    _Font = TTF_OpenFont ("/home/pi/Truck/TTFs/sfd/FreeSans.ttf", 30);
 
     if(!_Font)
     {
@@ -76,6 +80,8 @@ GUI::GUI ()
 
   _Truck = IMG_LoadTexture (_Renderer,"Truck.png");
   SDL_QueryTexture (_Truck, 0, 0, &_TruckRect.w, &_TruckRect.h);
+
+  //_Cam = Camera (_Renderer);
 }
 
 GUI::~GUI ()
@@ -96,6 +102,21 @@ void GUI::Event ()
 
       break;
     }
+
+    case SDL_KEYDOWN:
+    {
+      switch (_Event.key.keysym.sym)
+      {
+        case SDLK_ESCAPE:
+        {
+          SDL_Quit ();
+
+          break;
+        }
+      }
+
+      break;
+    }
   }
 }
 
@@ -103,19 +124,24 @@ void GUI::Display (long double a, long double b, long double c, long double d, l
 {
   Event ();
 
+  //_Stream = _Cam.GetFrame ();
+
   SDL_SetRenderDrawColor (_Renderer, 0, 0, 200, 255);
-	
   SDL_RenderClear (_Renderer);
 
   SDL_SetRenderDrawColor (_Renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-
   SDL_RenderDrawLine (_Renderer, (current.w / 2), 0, (current.w / 2), current.h);
-  RenderTexture (_Truck, ((current.w / 4) * 3) - (_TruckRect.w / 2), (current.h - _TruckRect.h));
-  RenderText (a, 0, 0);
-  RenderText (b, 0, 50);
-  RenderText (c, 0, 100);
-  RenderText (d, 0, 150);
-  RenderText (e, 0, 200);
+
+  RenderTruck (_Truck, (current.w / 4) - (_TruckRect.w / 2), (current.h / 2) - (_TruckRect.h / 2));
+  //RenderTexture (_Stream, 0, 300);
+
+  SDL_DestroyTexture(Message);
+
+  RenderText (a, (_TruckRect.x), 400);
+  RenderText (b, (_TruckRect.x), _TruckRect.y);
+  RenderText (c, (_TruckRect.x) + (_TruckRect.w / 2), _TruckRect.y);
+  RenderText (d, (_TruckRect.x) + (_TruckRect.w), _TruckRect.y);
+  RenderText (e, (_TruckRect.x) + (_TruckRect.w), 400);
 
   SDL_RenderPresent (_Renderer);
 }
@@ -130,10 +156,21 @@ void GUI::RenderText (long double Dis, int x, int y)
 
     ss.str ("");
 
-    Message_rect.x = x;
-    Message_rect.y = y;
+    _TextboxRect.x = x - ((text->w + 10) / 2);
+    _TextboxRect.y = y - ((text->h + 10) / 2);
+    _TextboxRect.w = text->w + 10;
+    _TextboxRect.h = text->h + 10;
+
     Message_rect.w = text -> w;
     Message_rect.h = text -> h;
+    Message_rect.x = (_TextboxRect.x - (Message_rect.w / 2)) + (_TextboxRect.w / 2);
+    Message_rect.y = (_TextboxRect.y - (Message_rect.h / 2)) + (_TextboxRect.h / 2);
+
+
+    SDL_SetRenderDrawColor (_Renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+
+    SDL_RenderDrawRect (_Renderer, &_TextboxRect);
+    SDL_RenderFillRect (_Renderer, &_TextboxRect);
 
     SDL_RenderCopy(_Renderer, Message, NULL, &Message_rect);
       
@@ -141,7 +178,7 @@ void GUI::RenderText (long double Dis, int x, int y)
     SDL_FreeSurface(text);
 }
 
-void GUI::RenderTexture (SDL_Texture* Tex, int x, int y)
+void GUI::RenderTruck (SDL_Texture* Tex, int x, int y)
 {
   _TruckRect.x = x;
   _TruckRect.y = y;

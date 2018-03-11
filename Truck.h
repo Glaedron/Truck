@@ -21,11 +21,11 @@ class Truck
 
   private:
 
-    long double _ValRight;
-    long double _ValFrontRight;
-    long double _ValFront;
-    long double _ValFrontLeft;
-    long double _ValLeft;
+    long double _ValRight = 0;
+    long double _ValFrontRight = 0;
+    long double _ValFront = 0;
+    long double _ValFrontLeft = 0;
+    long double _ValLeft = 0;
 
 
     Sensor _Right;
@@ -48,11 +48,11 @@ class Truck
 
 Truck::Truck ()
 {
-  _Right = Sensor (11, 12);
-  _FrontRight = Sensor (13, 14);
-  _Front = Sensor (7, 8);
-  _FrontLeft = Sensor (15, 16);
-  _Left = Sensor (9, 10);
+  _Right = Sensor (28, 27, &_ValRight);
+  _FrontRight = Sensor (11, 31, &_ValFrontRight);
+  _Front = Sensor (10, 6, &_ValFront);
+  _FrontLeft = Sensor (5, 4, &_ValFrontLeft);
+  _Left = Sensor (16, 15, &_ValLeft);
 
   _Wheel = Wheel (24, 25, 26);
   _Engine = Engine (22, 23);
@@ -66,11 +66,11 @@ void Truck::Drive()
   {
     while (_Power.GetState() == true)
     {
-      _ValRight = _Right.GetDistance ();
-      _FrontRight.GetDistance ();
-      _ValFront = _Front.GetDistance ();
-      _ValFrontLeft = _FrontLeft.GetDistance ();
-      _ValLeft = _Left.GetDistance ();
+      _Right.Measure ();
+      _FrontRight.Measure ();
+      _Front.Measure ();
+      _FrontLeft.Measure ();
+      _Left.Measure ();
      
       std::cout <<" run "<< std::endl;
 
@@ -189,7 +189,14 @@ void Truck::PWMTest()
 
 void Truck::Display ()
 {
-  _View.Display (_count /*_Right.GetDistance ()*/,0 /* _FrontRight.GetDistance ()*/, _Front.GetDistance (),0 /* _FrontLeft.GetDistance ()*/,0 /* _Left.GetDistance ()*/);
+
+  _Left.Measure ();
+  _FrontLeft.Measure ();
+  _Front.Measure ();
+  _FrontRight.Measure ();
+  _Right.Measure ();
+
+  _View.Display (_ValLeft, _ValFrontLeft, _ValFront, _ValFrontRight, _ValRight);
 
   delay (250);
 
