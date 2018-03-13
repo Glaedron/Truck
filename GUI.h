@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2//SDL_ttf.h>
 #include <sstream>
+#include "Textbox.h"
 //#include "Camera.h"
 
 class GUI
@@ -33,6 +34,7 @@ class GUI
   SDL_Texture* Message;
   SDL_Texture* _Truck;
   SDL_Color textColor = {0, 0, 0};
+  Textbox TTest;
   //Camera _Cam;
   //SDL_Texture* _Stream;
 };
@@ -80,6 +82,8 @@ GUI::GUI ()
 
   _Truck = IMG_LoadTexture (_Renderer,"Truck.png");
   SDL_QueryTexture (_Truck, 0, 0, &_TruckRect.w, &_TruckRect.h);
+
+  TTest = Textbox (_Renderer);
 
   //_Cam = Camera (_Renderer);
 }
@@ -142,6 +146,8 @@ void GUI::Display (long double a, long double b, long double c, long double d, l
   RenderText (c, (_TruckRect.x) + (_TruckRect.w / 2), _TruckRect.y);
   RenderText (d, (_TruckRect.x) + (_TruckRect.w), _TruckRect.y);
   RenderText (e, (_TruckRect.x) + (_TruckRect.w), 400);
+
+  TTest.Render (12345, 500, 500);
 
   SDL_RenderPresent (_Renderer);
 }
