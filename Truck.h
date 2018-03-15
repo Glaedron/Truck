@@ -42,8 +42,6 @@ class Truck
     Switch _Power;
     Interface *_View = nullptr;
 
-    void Display ();
-
     int _count;
 };
 
@@ -137,8 +135,20 @@ void Truck::DisplayTest()
 
   while (_View -> Run == true)
   {
-    Display ();
+    _Left.Measure ();
+    _FrontLeft.Measure ();
+    _Front.Measure ();
+    _FrontRight.Measure ();
+    _Right.Measure ();
+
+    _View -> Display ();
+
+    //std::cout << _ValRight << std::endl;
+
+    delay (250);
   }
+
+  delete _View;
 }
 
 void Truck::Test()
@@ -194,20 +204,4 @@ void Truck::PWMTest()
   }
 
   Stop ();
-}
-
-void Truck::Display ()
-{
-
-  _Left.Measure ();
-  _FrontLeft.Measure ();
-  _Front.Measure ();
-  _FrontRight.Measure ();
-  _Right.Measure ();
-
-  _View -> Display ();
-
-  delay (250);
-
-  _count++;
 }

@@ -14,12 +14,12 @@ class Interface
   void Event ();
   void Display ();
 
-  void Textbox (long double Dis, int x, int y);
-  void Pic (SDL_Texture* Tex, int x, int y);
-
   bool Run = false;
 
   private:
+
+  void Textbox (long double Dis, int x, int y);
+  void Pic (SDL_Texture* Tex, int x, int y);
 
   std::stringstream _StrStr;
   static bool init;
