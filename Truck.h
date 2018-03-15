@@ -5,13 +5,14 @@
 #include "Engine.h"
 #include "Wheel.h"
 #include "Switch.h"
-#include "GUI.h"
+#include "Interface.h"
 
 class Truck
 {
   public:
 
     Truck ();
+    ~Truck ();
 
     void Drive();
     void Stop();
@@ -39,7 +40,7 @@ class Truck
     Engine _Engine;
     Engine _PWMEngine;
     Switch _Power;
-    GUI _View;
+    Interface *_View = nullptr;
 
     void Display ();
 
@@ -58,6 +59,12 @@ Truck::Truck ()
   _Engine = Engine (22, 23);
   _PWMEngine = Engine (22, 23, 21);
   _Power = Switch (0);
+  _View = new Interface (&_ValLeft, &_ValFrontLeft, &_ValFront, &_ValFrontRight, &_ValRight);
+}
+
+Truck::~Truck ()
+{
+  delete _View;
 }
 
 void Truck::Drive()
@@ -126,7 +133,9 @@ void Truck::Stop()
 
 void Truck::DisplayTest()
 {
-  for (int counter = 0; counter < 1000; counter++)
+  //for (int counter = 0; counter < 1000; counter++)
+
+  while (_View -> Run == true)
   {
     Display ();
   }
@@ -196,7 +205,7 @@ void Truck::Display ()
   _FrontRight.Measure ();
   _Right.Measure ();
 
-  _View.Display (_ValLeft, _ValFrontLeft, _ValFront, _ValFrontRight, _ValRight);
+  _View -> Display ();
 
   delay (250);
 
