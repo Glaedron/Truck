@@ -8,9 +8,10 @@ class Interface
 {
   public:
 
-  Interface (long double *L, long double *FL, long double *F, long double *FR, long double *R);
+  Interface ();
   ~Interface ();
 
+  void Init (long double *L, long double *FL, long double *F, long double *FR, long double *R);
   void Event ();
   void Display ();
 
@@ -52,7 +53,19 @@ class Interface
 
 bool Interface::init = 0;
 
-Interface::Interface (long double *L, long double *FL, long double *F, long double *FR, long double *R)
+Interface::Interface ()
+{
+  Run = true;
+}
+
+Interface::~Interface ()
+{
+  SDL_DestroyWindow (_Window);
+  SDL_DestroyRenderer (_Renderer);
+  SDL_Quit ();
+}
+
+void Interface::Init (long double *L, long double *FL, long double *F, long double *FR, long double *R)
 {
   if (init == 0)
   {
@@ -101,15 +114,6 @@ Interface::Interface (long double *L, long double *FL, long double *F, long doub
   _F = F;
   _FR = FR;
   _R = R;
-
-  Run = true;
-}
-
-Interface::~Interface ()
-{
-  SDL_DestroyWindow (_Window);
-  SDL_DestroyRenderer (_Renderer);
-  SDL_Quit ();
 }
 
 void Interface::Event ()
@@ -149,7 +153,7 @@ void Interface::Display ()
   SDL_RenderDrawLine (_Renderer, (_Current.w / 2), 0, (_Current.w / 2), _Current.h);
 
   Pic (_Truck, (_Current.w / 4) - (_TruckRect.w / 2), (_Current.h / 2) - (_TruckRect.h / 2));
-  //Pic (_Stream, 0, 300);
+ // Pic (_Stream, 500, 500);
 
   Textbox (*_L, (_TruckRect.x), 400);
   Textbox (*_FL, (_TruckRect.x), _TruckRect.y);

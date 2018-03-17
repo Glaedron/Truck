@@ -57,7 +57,8 @@ Truck::Truck ()
   _Engine = Engine (22, 23);
   _PWMEngine = Engine (22, 23, 21);
   _Power = Switch (0);
-  _View = new Interface (&_ValLeft, &_ValFrontLeft, &_ValFront, &_ValFrontRight, &_ValRight);
+  _View = new Interface ();
+  _View -> Init (&_ValLeft, &_ValFrontLeft, &_ValFront, &_ValFrontRight, &_ValRight);
 }
 
 Truck::~Truck ()
@@ -145,7 +146,7 @@ void Truck::DisplayTest()
 
     //std::cout << _ValRight << std::endl;
 
-    delay (250);
+    delay (50);
   }
 
   delete _View;
