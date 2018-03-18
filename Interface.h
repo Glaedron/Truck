@@ -87,7 +87,7 @@ void Interface::Init (long double *L, long double *FL, long double *F, long doub
     init = 1;
   }
 
-  _Font = TTF_OpenFont ("/home/pi/Truck/TTFs/sfd/FreeSans.ttf", 30);
+  _Font = TTF_OpenFont ("/home/pi/Truck/Unterlagen/TTFs/sfd/FreeSans.ttf", 30);
 
   if(!_Font)
   {
@@ -104,7 +104,7 @@ void Interface::Init (long double *L, long double *FL, long double *F, long doub
 	
   _Renderer = SDL_CreateRenderer (_Window, -1, SDL_RENDERER_ACCELERATED);
 
-  _Truck = IMG_LoadTexture (_Renderer, "Truck.png");
+  _Truck = IMG_LoadTexture (_Renderer, "Unterlagen/Truck.png");
   SDL_QueryTexture (_Truck, 0, 0, &_TruckRect.w, &_TruckRect.h);
 
   //_Cam = Camera (_Renderer);
