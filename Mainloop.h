@@ -2,86 +2,89 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2//SDL_ttf.h>
 #include <sstream>
-//#include "Camera.h"
+#include "Truck.h"
 
-class Interface
+class Mainloop
 {
   public:
 
-  Interface ();
-  ~Interface ();
+    Mainloop ();
+    ~Mainloop ();
 
-  void Init (long double *L, long double *FL, long double *F, long double *FR, long double *R);
-  void Event ();
-  void Display ();
+    bool Init ();
+    void Test ();
 
-  bool Run = false;
+    void Input ();
+    void Update ();
+    void Render ();
+
+    bool Run = false;
 
   private:
 
-  void Textbox (long double Dis, int x, int y);
-  void Pic (SDL_Texture* Tex, int x, int y);
+    void Textbox (long double Dis, int x, int y);
+    void Pic (SDL_Texture* Tex, int x, int y);
 
-  std::stringstream _StrStr;
-  static bool init;
+    std::stringstream _StrStr;
+    static bool init;
 
-  SDL_Color _TextColor = {0, 0, 0};
-  SDL_Event _Event;
-  SDL_DisplayMode _Current;
+    Truck LegoTruck;
 
-  SDL_Window *_Window = nullptr;
-  SDL_Renderer *_Renderer = nullptr;
-  TTF_Font* _Font = nullptr;
+    SDL_Color _TextColor = {0, 0, 0};
+    SDL_Event _Event;
+    SDL_DisplayMode _Current;
 
-  SDL_Rect _MessageRect;
-  SDL_Rect _TruckRect;
-  SDL_Rect _TextboxRect;
+    SDL_GameController *_Controller = nullptr;
+    SDL_Window *_Window = nullptr;
+    SDL_Renderer *_Renderer = nullptr;
+    TTF_Font* _Font = nullptr;
+  
+    SDL_Rect _MessageRect;
+    SDL_Rect _TruckRect;
+    SDL_Rect _TextboxRect;
 
-  SDL_Surface* _Text;
-  SDL_Texture* _Message;
-  SDL_Texture* _Truck;
-
-  //Camera _Cam;
-  //SDL_Texture* _Stream;
-
-  long double *_L;
-  long double *_FL;
-  long double *_F;
-  long double *_FR;
-  long double *_R;
+    SDL_Surface* _Text;
+    SDL_Texture* _Message;
+    SDL_Texture* _Truck;
 };
 
-bool Interface::init = 0;
+bool Mainloop::init = 0;
 
-Interface::Interface ()
+Mainloop::Mainloop ()
 {
-  Run = true;
 }
 
-Interface::~Interface ()
+Mainloop::~Mainloop ()
 {
   SDL_DestroyWindow (_Window);
   SDL_DestroyRenderer (_Renderer);
+  SDL_GameControllerClose (_Controller);
   SDL_Quit ();
 }
 
-void Interface::Init (long double *L, long double *FL, long double *F, long double *FR, long double *R)
+bool Mainloop::Init ()
 {
   if (init == 0)
   {
-    if (SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER) == -1)
+    if (SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) == -1)
     {
       std::cout <<" error vid/timer"<< std::endl;
+
+      return 0;
     }
 
     if (IMG_Init (IMG_INIT_PNG) == -1)
     {
       std::cout <<" error png"<< std::endl;
+
+      return 0;
     }
 
     if (TTF_Init() == -1)
     {
       std::cout <<" error ttf"<< std::endl;
+
+      return 0;
     }
 
     init = 1;
@@ -92,6 +95,8 @@ void Interface::Init (long double *L, long double *FL, long double *F, long doub
   if(!_Font)
   {
     std::cout <<" error ttf2"<< std::endl;
+
+    return 0;
   }
 
   for (int i = 0; i < SDL_GetNumVideoDisplays (); i++)
@@ -107,16 +112,43 @@ void Interface::Init (long double *L, long double *FL, long double *F, long doub
   _Truck = IMG_LoadTexture (_Renderer, "Unterlagen/Truck.png");
   SDL_QueryTexture (_Truck, 0, 0, &_TruckRect.w, &_TruckRect.h);
 
-  //_Cam = Camera (_Renderer);
+  for (int i = 0; i < SDL_NumJoysticks (); ++i)
+  {
+    if (SDL_IsGameController (i))
+    {
+      _Controller = SDL_GameControllerOpen(i);
 
-  _L = L;
-  _FL = FL;
-  _F = F;
-  _FR = FR;
-  _R = R;
+      if (_Controller)
+      {
+        break;
+      }
+
+      else
+      {
+        std::cout <<"Could not open gamecontroller " << std::endl;
+
+        return 0;
+      }
+    }
+  }
+
+  Run = true;
+
+  return 1;
 }
 
-void Interface::Event ()
+void Mainloop::Test ()
+{
+//  LegoTruck.DisplayTest ();
+
+//  LegoTruck.Test ();
+
+//  LegoTruck.PWMTest ();
+
+//  LegoTruck.Drive();
+}
+
+void Mainloop::Input ()
 {
   SDL_PollEvent (&_Event);
 
@@ -125,6 +157,8 @@ void Interface::Event ()
     case SDL_QUIT:
     {
       Run = false;
+
+      break;
     }
 
     case SDL_KEYDOWN:
@@ -134,16 +168,49 @@ void Interface::Event ()
         case SDLK_ESCAPE:
         {
           Run = false;
+
+          break;
         }
       }
+
+      break;
+    }
+
+    case SDL_CONTROLLERBUTTONDOWN:
+    {
+      switch (_Event.cbutton.button)
+      {
+        case SDL_CONTROLLER_BUTTON_B:
+        {
+          LegoTruck.Stop ();
+        }
+
+        case SDL_CONTROLLER_BUTTON_A:
+        {
+        }
+
+        case SDL_CONTROLLER_BUTTON_X:
+        {
+        }
+
+        case SDL_CONTROLLER_BUTTON_Y:
+        {
+        }
+      }
+
+      break;
     }
   }
 }
 
-void Interface::Display ()
+void Mainloop::Update ()
 {
-  Event ();
+  LegoTruck.Measure ();
+  //LegoTruck.Drive ();
+}
 
+void Mainloop::Render ()
+{
   //_Stream = _Cam.GetFrame ();
 
   SDL_SetRenderDrawColor (_Renderer, 0, 0, 200, 255);
@@ -153,18 +220,21 @@ void Interface::Display ()
   SDL_RenderDrawLine (_Renderer, (_Current.w / 2), 0, (_Current.w / 2), _Current.h);
 
   Pic (_Truck, (_Current.w / 4) - (_TruckRect.w / 2), (_Current.h / 2) - (_TruckRect.h / 2));
- // Pic (_Stream, 500, 500);
 
-  Textbox (*_L, (_TruckRect.x), 400);
-  Textbox (*_FL, (_TruckRect.x), _TruckRect.y);
-  Textbox (*_F, (_TruckRect.x) + (_TruckRect.w / 2), _TruckRect.y);
-  Textbox (*_FR, (_TruckRect.x) + (_TruckRect.w), _TruckRect.y);
-  Textbox (*_R, (_TruckRect.x) + (_TruckRect.w), 400);
+  Textbox (LegoTruck._ValLeft, (_TruckRect.x), 400);
+  Textbox (LegoTruck._ValFrontLeft, (_TruckRect.x), _TruckRect.y);
+  Textbox (LegoTruck._ValFront, (_TruckRect.x) + (_TruckRect.w / 2), _TruckRect.y);
+  Textbox (LegoTruck._ValFrontRight, (_TruckRect.x) + (_TruckRect.w), _TruckRect.y);
+  Textbox (LegoTruck._ValRight, (_TruckRect.x) + (_TruckRect.w), 400);
 
   SDL_RenderPresent (_Renderer);
 }
 
-void Interface::Textbox (long double Dis, int x, int y)
+
+
+
+
+void Mainloop::Textbox (long double Dis, int x, int y)
 {
     _StrStr << Dis;
 
@@ -196,7 +266,7 @@ void Interface::Textbox (long double Dis, int x, int y)
     SDL_FreeSurface (_Text);
 }
 
-void Interface::Pic (SDL_Texture* Tex, int x, int y)
+void Mainloop::Pic (SDL_Texture* Tex, int x, int y)
 {
   _TruckRect.x = x;
   _TruckRect.y = y;

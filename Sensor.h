@@ -96,7 +96,7 @@ bool Sensor::Measure ()
   }
 
   //std::cout << _TimeDiff * 0.001 <<" Millisekunden "<< std::endl;
-  std::cout << _TimeDiff <<" Mikrosekunden "<< std::endl;
+  //std::cout << _TimeDiff <<" Mikrosekunden "<< std::endl;
 
   return 1;
 }

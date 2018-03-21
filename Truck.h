@@ -5,7 +5,6 @@
 #include "Engine.h"
 #include "Wheel.h"
 #include "Switch.h"
-#include "Interface.h"
 
 class Truck
 {
@@ -16,11 +15,12 @@ class Truck
 
     void Drive();
     void Stop();
-    void DisplayTest();
+    void Measure ();
     void Test();
     void PWMTest();
 
-  private:
+    Wheel _Wheel;
+    Engine _PWMEngine;
 
     long double _ValRight = 0;
     long double _ValFrontRight = 0;
@@ -28,6 +28,7 @@ class Truck
     long double _ValFrontLeft = 0;
     long double _ValLeft = 0;
 
+  private:
 
     Sensor _Right;
     Sensor _FrontRight;
@@ -35,12 +36,8 @@ class Truck
     Sensor _FrontLeft;
     Sensor _Left;
 
-
-    Wheel _Wheel;
     Engine _Engine;
-    Engine _PWMEngine;
     Switch _Power;
-    Interface *_View = nullptr;
 
     int _count;
 };
@@ -57,70 +54,58 @@ Truck::Truck ()
   _Engine = Engine (22, 23);
   _PWMEngine = Engine (22, 23, 21);
   _Power = Switch (0);
-  _View = new Interface ();
-  _View -> Init (&_ValLeft, &_ValFrontLeft, &_ValFront, &_ValFrontRight, &_ValRight);
 }
 
 Truck::~Truck ()
 {
-  delete _View;
 }
 
 void Truck::Drive()
 {
-  while (1)
+  while (_Power.GetState() == true)
   {
-    while (_Power.GetState() == true)
+    std::cout <<" run "<< std::endl;
+
+    if (_ValFront > 60 && _ValRight > 10 && _ValLeft > 10)
     {
-      _Right.Measure ();
-      _FrontRight.Measure ();
-      _Front.Measure ();
-      _FrontLeft.Measure ();
-      _Left.Measure ();
-     
-      std::cout <<" run "<< std::endl;
-
-      if (_ValFront > 60 && _ValRight > 10 && _ValLeft > 10)
-      {
-        _Engine.Forward();
-        _Wheel.Middle();
-      }
-
-      if ((_ValFront > 20 && _ValFront < 60 && _ValRight > _ValLeft) || (_ValFront > 20 && _ValLeft < 10))
-      {
-        _Engine.Forward();
-	_Wheel.Right();
-      }
-
-      if ((_ValFront > 20 && _ValFront < 60 && _ValLeft > _ValRight) || (_ValFront > 20 && _ValRight < 10))
-      {
-	_Engine.Forward();
-	_Wheel.Left();
-      }
-/*
-      if (_ValFront < 20)
-      {
-        while (_ValFront <= 40)
-	{
-	  if (_ValFront < 40 && _ValRight > _ValLeft)
-	  {
-	    _Engine.Backward();
-	    _Wheel.Right();
-	  }
-
-          if (_ValFront < 40 && _ValLeft > _ValRight)
-	  {
-	    _Engine.Backward();
-	    _Wheel.Left();
-	  }
-	}
-      }*/
+      _Engine.Forward();
+      _Wheel.Middle();
     }
 
-    Stop();
+    if ((_ValFront > 20 && _ValFront < 60 && _ValRight > _ValLeft) || (_ValFront > 20 && _ValLeft < 10))
+    {
+      _Engine.Forward();
+      _Wheel.Right();
+    }
 
-    std::cout <<" stop "<< std::endl;
+    if ((_ValFront > 20 && _ValFront < 60 && _ValLeft > _ValRight) || (_ValFront > 20 && _ValRight < 10))
+    {
+      _Engine.Forward();
+      _Wheel.Left();
+    }
+/*
+    if (_ValFront < 20)
+    {
+      while (_ValFront <= 40)
+      {
+        if (_ValFront < 40 && _ValRight > _ValLeft)
+	{
+	  _Engine.Backward();
+	  _Wheel.Right();
+	}
+
+        if (_ValFront < 40 && _ValLeft > _ValRight)
+	{
+	  _Engine.Backward();
+	  _Wheel.Left();
+	}
+      }
+    }*/
   }
+
+  Stop();
+
+  std::cout <<" stop "<< std::endl;
 }
 
 void Truck::Stop()
@@ -130,26 +115,20 @@ void Truck::Stop()
   _PWMEngine.Stop ();
 }
 
-void Truck::DisplayTest()
+void Truck::Measure ()
 {
   //for (int counter = 0; counter < 1000; counter++)
 
-  while (_View -> Run == true)
-  {
-    _Left.Measure ();
-    _FrontLeft.Measure ();
-    _Front.Measure ();
-    _FrontRight.Measure ();
+    //_Left.Measure ();
+    //_FrontLeft.Measure ();
+    //_Front.Measure ();
+    //_FrontRight.Measure ();
     _Right.Measure ();
-
-    _View -> Display ();
 
     //std::cout << _ValRight << std::endl;
 
-    delay (50);
-  }
+    //delay (50);
 
-  delete _View;
 }
 
 void Truck::Test()

@@ -1,5 +1,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <iostream>
 
 using namespace cv;
@@ -78,7 +80,7 @@ void Camera::Test ()
   {
     _Cap.read (_Frame);
 
-    _Frame.convertTo (_Frame8U, CV_8U);
+    _Frame.convertTo (_Frame8U, CV_8UC3);
 
     imshow ("you can see the image now",_Frame8U);
 
