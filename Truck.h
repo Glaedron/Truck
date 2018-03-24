@@ -39,6 +39,7 @@ class Truck
     Engine _Engine;
     Switch _Power;
 
+    Timer _Timer;
     int _count;
 };
 
@@ -50,10 +51,10 @@ Truck::Truck ()
   _FrontLeft = Sensor (5, 4, &_ValFrontLeft);
   _Left = Sensor (16, 15, &_ValLeft);
 
-  _Wheel = Wheel (24, 25, 26);
-  _Engine = Engine (22, 23);
-  _PWMEngine = Engine (22, 23, 21);
-  _Power = Switch (0);
+  _Wheel = Wheel (12, 14, 7);
+  _Engine = Engine (0, 3);
+  _PWMEngine = Engine (0, 3, 23);
+  _Power = Switch (9);
 }
 
 Truck::~Truck ()
@@ -62,7 +63,7 @@ Truck::~Truck ()
 
 void Truck::Drive()
 {
-  while (_Power.GetState() == true)
+  if (_Power.GetState() == true)
   {
     std::cout <<" run "<< std::endl;
 
@@ -117,18 +118,11 @@ void Truck::Stop()
 
 void Truck::Measure ()
 {
-  //for (int counter = 0; counter < 1000; counter++)
-
-    //_Left.Measure ();
-    //_FrontLeft.Measure ();
-    //_Front.Measure ();
-    //_FrontRight.Measure ();
+    _Left.Measure ();
+    _FrontLeft.Measure ();
+    _Front.Measure ();
+    _FrontRight.Measure ();
     _Right.Measure ();
-
-    //std::cout << _ValRight << std::endl;
-
-    //delay (50);
-
 }
 
 void Truck::Test()

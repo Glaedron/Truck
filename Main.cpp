@@ -9,6 +9,8 @@ int main()
 
   LegoTruck.Init ();
 
+//  LegoTruck.Test ();
+
   while (LegoTruck.Run)
   {
     LegoTruck.Input ();

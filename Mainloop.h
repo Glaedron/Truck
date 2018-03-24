@@ -139,12 +139,10 @@ bool Mainloop::Init ()
 
 void Mainloop::Test ()
 {
-//  LegoTruck.DisplayTest ();
-
 //  LegoTruck.Test ();
 
-//  LegoTruck.PWMTest ();
-
+  LegoTruck.PWMTest ();
+//
 //  LegoTruck.Drive();
 }
 
