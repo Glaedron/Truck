@@ -1,34 +1,58 @@
-class Sensor {
-	public:
+class Sensor
+{
+  public:
 
-        Sensor ();
+    Sensor ();
 
-	Sensor (int PinTrigger, int PinEcho, long double *val);
+    Sensor (int PinTrigger, int PinEcho, SDL_Renderer* renderer);
 
-	bool Measure ();
+    bool Update ();
+    void Render ();
 
-	private:
+    void SetPos (int x, int y);
 
-	long double *_Value = nullptr;
-	int _PinTrigger;
-	int _PinEcho;
+    long double GetVal ()
+    {
+      return _Val;
+    }
 
-	timeval _Start;
-	timeval _End;
+  private:
 
-	timeval _CheckStart;
-	timeval _CheckEnd;
+    SDL_Rect _MessageRect;
+    SDL_Rect _TextboxRect;
 
-        long double _TimeDiff;
-        long double _Check;
-        long double _Preval;
+    SDL_Surface* _Text;
+    SDL_Texture* _Message;
+
+    TTF_Font* _Font = nullptr;
+    SDL_Color _TextColor = {0, 0, 0};
+
+    std::stringstream _StrStr;
+
+    SDL_Renderer* _Renderer = nullptr;
+
+
+    int _PinTrigger;
+    int _PinEcho;
+
+    timeval _Start;
+    timeval _End;
+
+    timeval _CheckStart;
+    timeval _CheckEnd;
+
+    long double _TimeDiff;
+    long double _Check;
+
+    long double _Preval;
+    long double _Val;
 };
 
 Sensor::Sensor ()
 {
 }
 
-Sensor::Sensor (int PinTrigger, int PinEcho, long double *val)
+Sensor::Sensor (int PinTrigger, int PinEcho, SDL_Renderer* renderer)
 {
   _PinTrigger = PinTrigger;
   _PinEcho = PinEcho;
@@ -36,10 +60,17 @@ Sensor::Sensor (int PinTrigger, int PinEcho, long double *val)
   pinMode (_PinTrigger, OUTPUT);
   pinMode (_PinEcho, INPUT);
   
-  _Value = val;
+  _Renderer = renderer;
+
+  _Font = TTF_OpenFont ("/home/pi/Truck/Unterlagen/TTFs/sfd/FreeSans.ttf", 30);
+
+  if(!_Font)
+  {
+    std::cout <<" error ttf2"<< std::endl;
+  }
 }
 
-bool Sensor::Measure ()
+bool Sensor::Update ()
 {
   digitalWrite (_PinTrigger, 1);
   delay (1);
@@ -92,11 +123,48 @@ bool Sensor::Measure ()
 
   if (_Preval >= 0 && _Preval < 500)
   {
-    *_Value = _Preval;
+    _Val = _Preval;
   }
 
   //std::cout << _TimeDiff * 0.001 <<" Millisekunden "<< std::endl;
   //std::cout << _TimeDiff <<" Mikrosekunden "<< std::endl;
 
   return 1;
+}
+
+void Sensor::Render ()
+{
+  _StrStr << _Val;
+
+  _Text = TTF_RenderText_Solid (_Font, _StrStr.str ().c_str (), _TextColor);
+
+  _Message = SDL_CreateTextureFromSurface (_Renderer, _Text);
+
+  _StrStr.str ("");
+
+  _TextboxRect.x -= ((_Text->w + 10) / 2);
+  _TextboxRect.y -= ((_Text->h + 10) / 2);
+  _TextboxRect.w = _Text->w + 10;
+  _TextboxRect.h = _Text->h + 10;
+
+  _MessageRect.w = _Text -> w;
+  _MessageRect.h = _Text -> h;
+  _MessageRect.x = (_TextboxRect.x - (_MessageRect.w / 2)) + (_TextboxRect.w / 2);
+  _MessageRect.y = (_TextboxRect.y - (_MessageRect.h / 2)) + (_TextboxRect.h / 2);
+
+
+  SDL_SetRenderDrawColor (_Renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+
+  SDL_RenderDrawRect (_Renderer, &_TextboxRect);
+  SDL_RenderFillRect (_Renderer, &_TextboxRect);
+
+  SDL_RenderCopy (_Renderer, _Message, NULL, &_MessageRect);
+      
+  SDL_FreeSurface (_Text);
+}
+
+void Sensor::SetPos (int x, int y)
+{
+  _TextboxRect.x = x;
+  _TextboxRect.y = y;
 }
