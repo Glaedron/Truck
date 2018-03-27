@@ -5,110 +5,83 @@ class Wheel
   public:
 
     Wheel ();
-    Wheel (int PinLeft, int PinRight, int PinRelais);
+    Wheel (int PinLeft, int PinRight, int PinPWM);
 	
-    void Left ();
-    void Right ();
+    void Left (int position);
+    void Right (int position);
     void Middle ();
-    void Stop ();
 	
   private:
 	
     int _PinLeft;
     int _PinRight;
-    int _PinRelais;
+    int _PinPWM;
 
-    Timer _LeftTimer, _RightTimer, _MiddleTimer;
-	
-    bool _Left, _Right, _Middle;
+    double _Range = 10.204;
+    double _Positions [8] = {
+                             0,
+                             0.258 * _Range,
+                             0.380 * _Range,
+                             0.501 * _Range,
+                             0.635 * _Range,
+                             0.760 * _Range,
+                             0.882 * _Range,
+                             1.000 * _Range
+                           };
 };
 
 Wheel::Wheel ()
 {
 }
 
-Wheel::Wheel (int PinLeft, int PinRight, int PinRelais)
+Wheel::Wheel (int PinLeft, int PinRight, int PinPWM)
 {
   _PinLeft = PinLeft;
   _PinRight = PinRight;
-  _PinRelais = PinRelais;
-	
+  _PinPWM = PinPWM;
+
   pinMode (_PinLeft, OUTPUT);
   pinMode (_PinRight, OUTPUT);
-  pinMode (_PinRelais,OUTPUT);
+  softPwmCreate (_PinPWM, 0, _Range);
 }
 
-void Wheel::Left ()
+void Wheel::Left (int position)
 {
-  if (_Right == true && _Middle == false)
+  if (position > 7)
   {
-    Middle ();
+    position = 7;
   }
-	
-  if (!_Left)
+
+  if (position < 0)
   {
-    digitalWrite (_PinRight,0);
-    digitalWrite (_PinLeft,1);
-    digitalWrite (_PinRelais,1);
-		
-    delay (1000);
-		
-    digitalWrite (_PinRight,0);
-    digitalWrite (_PinLeft,0);
-    digitalWrite (_PinRelais,0);
-		
-    _Left = true;
-    _Right = false;
-    _Middle = false;
+    position = 0;
   }
+
+  softPwmWrite (_PinPWM, _Positions [position]);
+  digitalWrite (_PinLeft,1);
+  digitalWrite (_PinRight,0);
 }
 
-void Wheel::Right ()
+void Wheel::Right (int position)
 {
-  if (_Left == true && _Middle == false)
+  if (position > 7)
   {
-    Middle ();
+    position = 7;
   }
-	
-  if (!_Right)
+
+  if (position < 0)
   {
-    digitalWrite (_PinRight,1);
-    digitalWrite (_PinLeft,0);
-    digitalWrite (_PinRelais,1);
-		
-    delay (1000);
-		
-    digitalWrite (_PinRight,0);
-    digitalWrite (_PinLeft,0);
-    digitalWrite (_PinRelais,0);
-		
-    _Left = false;
-    _Right = true;
-    _Middle = false;
+    position = 0;
   }
+
+  softPwmWrite (_PinPWM, _Positions [position]);
+  digitalWrite (_PinLeft,0);
+  digitalWrite (_PinRight,1);
 }
 
 void Wheel::Middle ()
 {
-  if (!_Middle)
-  {
-    digitalWrite (_PinRight,0);
-    digitalWrite (_PinLeft,0);
-    digitalWrite (_PinRelais,1);
-
-    delay (1000);
-
-    digitalWrite (_PinRelais,0);
-    
-    _Left = false;
-    _Right = false;
-    _Middle = true;
-  }
-}
-
-void Wheel::Stop ()
-{
-  digitalWrite (_PinRight,0);
+  softPwmWrite (_PinPWM, 0);
   digitalWrite (_PinLeft,0);
-  digitalWrite (_PinRelais,0);
+  digitalWrite (_PinRight,0);
 }

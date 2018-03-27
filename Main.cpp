@@ -8,13 +8,14 @@ int main()
   Mainloop LegoTruck;
 
   LegoTruck.Init ();
-
-//  LegoTruck.Test ();
-
+//
+  LegoTruck.Test ();
+/*
   while (LegoTruck.Run)
   {
     LegoTruck.Input ();
     LegoTruck.Update ();
     LegoTruck.Render ();
   }
+*/
 }

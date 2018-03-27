@@ -14,7 +14,7 @@ class Truck
 {
   public:
 
-    Truck (SDL_Renderer *renderer);
+    Truck (SDL_Renderer *renderer, SDL_GameController* controller);
     ~Truck ();
 
     void Stop ();
@@ -38,14 +38,13 @@ class Truck
       ModeControlled = 1;
     }
 
+    void Input (SDL_Event event);
     void Update ();
     void Render ();
 
     void Test();
     void PWMTest();
-
-    Wheel _Wheel;
-    Engine _PWMEngine;
+    void WheelTest ();
 
     long double _ValRight = 0;
     long double _ValFrontRight = 0;
@@ -56,6 +55,9 @@ class Truck
   private:
 
     void Drive ();
+
+    SDL_GameController* _Controller = nullptr;
+    SDL_Joystick* _Joystick = nullptr;
 
     SDL_Texture* _Truck;
     SDL_Rect _TruckRect;
@@ -68,6 +70,8 @@ class Truck
     Sensor _FrontLeft;
     Sensor _Left;
 
+    Wheel _Wheel;
+    Engine _PWMEngine;
     Engine _Engine;
     Switch _Power;
 
@@ -78,9 +82,12 @@ class Truck
     bool ModeControlled = 0;
 };
 
-Truck::Truck (SDL_Renderer *renderer)
+Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
 {
   _Renderer = renderer;
+  _Controller = controller;
+
+  _Joystick = SDL_GameControllerGetJoystick (_Controller);
 
   _Right = Sensor (28, 27, _Renderer);
   _FrontRight = Sensor (11, 31, _Renderer);
@@ -88,7 +95,8 @@ Truck::Truck (SDL_Renderer *renderer)
   _FrontLeft = Sensor (5, 4, _Renderer);
   _Left = Sensor (16, 15, _Renderer);
 
-  _Wheel = Wheel (12, 14, 7);
+
+  _Wheel = Wheel (12, 14, 25);
   _Engine = Engine (0, 3);
   _PWMEngine = Engine (0, 3, 23);
   _Power = Switch (9);
@@ -116,15 +124,15 @@ void Truck::Drive()
     if ((_ValFront > 20 && _ValFront < 60 && _ValRight > _ValLeft) || (_ValFront > 20 && _ValLeft < 10))
     {
       _Engine.Forward();
-      _Wheel.Right();
+      _Wheel.Right(7);
     }
 
     if ((_ValFront > 20 && _ValFront < 60 && _ValLeft > _ValRight) || (_ValFront > 20 && _ValRight < 10))
     {
       _Engine.Forward();
-      _Wheel.Left();
+      _Wheel.Left(7);
     }
-/*
+
     if (_ValFront < 20)
     {
       while (_ValFront <= 40)
@@ -132,16 +140,16 @@ void Truck::Drive()
         if (_ValFront < 40 && _ValRight > _ValLeft)
 	{
 	  _Engine.Backward();
-	  _Wheel.Right();
+	  _Wheel.Right(7);
 	}
 
         if (_ValFront < 40 && _ValLeft > _ValRight)
 	{
 	  _Engine.Backward();
-	  _Wheel.Left();
+	  _Wheel.Left(7);
 	}
       }
-    }*/
+    }
   }
 
   Stop();
@@ -151,7 +159,6 @@ void Truck::Drive()
 
 void Truck::Stop()
 {
-  _Wheel.Stop ();
   _Engine.Stop ();
   _PWMEngine.Stop ();
 }
@@ -160,6 +167,43 @@ void Truck::SetPos (int x, int y)
 {
   _TruckRect.x = x;
   _TruckRect.y = y;
+}
+
+void Truck::Input (SDL_Event event)
+{
+  switch (event.type)
+  {
+    case SDL_CONTROLLERBUTTONDOWN:
+    {
+      switch (event.cbutton.button)
+      {
+        case SDL_CONTROLLER_BUTTON_A:
+        {
+        }
+
+        case SDL_CONTROLLER_BUTTON_B:
+        {
+        }
+
+        case SDL_CONTROLLER_BUTTON_X:
+        {
+          SetModeSelf ();
+
+          break;
+        }
+
+        case SDL_CONTROLLER_BUTTON_Y:
+        {
+          SetModeControlled ();
+
+          break;
+        }
+      }
+
+      break;
+    }
+
+  }
 }
 
 void Truck::Update ()
@@ -209,7 +253,7 @@ void Truck::Test()
 
   Stop ();
 
-  _Wheel.Right ();
+  _Wheel.Right (7);
 
   delay (5000);
 
@@ -217,7 +261,7 @@ void Truck::Test()
 
   delay (5000);
 
-  _Wheel.Left ();
+  _Wheel.Left (7);
 
   delay (5000);
 
@@ -250,4 +294,23 @@ void Truck::PWMTest()
   }
 
   Stop ();
+}
+
+void Truck::WheelTest ()
+{
+  for (int counterL = 0; counterL <= 7; counterL++)
+  {
+    _Wheel.Left (counterL);
+    delay (5000);
+  }
+
+  _Wheel.Middle ();
+
+  delay (5000);
+
+  for (int counterR = 0; counterR <= 7; counterR++)
+  {
+    _Wheel.Right (counterR);
+    delay (5000);
+  }
 }

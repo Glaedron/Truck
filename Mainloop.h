@@ -105,7 +105,7 @@ bool Mainloop::Init ()
     }
   }
 
-  _LegoTruck = new Truck (_Renderer);
+  _LegoTruck = new Truck (_Renderer, _Controller);
 
   Run = true;
 
@@ -114,16 +114,18 @@ bool Mainloop::Init ()
 
 void Mainloop::Test ()
 {
-//  LegoTruck.Test ();
+//  _LegoTruck -> Test ();
 
-//  LegoTruck.PWMTest ();
+//  _LegoTruck -> PWMTest ();
 
-//  LegoTruck.Drive();
+  _LegoTruck -> WheelTest ();
 }
 
 void Mainloop::Input ()
 {
   SDL_PollEvent (&_Event);
+
+  _LegoTruck -> Input (_Event);
 
   switch (_Event.type)
   {
@@ -143,32 +145,6 @@ void Mainloop::Input ()
           Run = false;
 
           break;
-        }
-      }
-
-      break;
-    }
-
-    case SDL_CONTROLLERBUTTONDOWN:
-    {
-      switch (_Event.cbutton.button)
-      {
-        case SDL_CONTROLLER_BUTTON_A:
-        {
-        }
-
-        case SDL_CONTROLLER_BUTTON_B:
-        {
-        }
-
-        case SDL_CONTROLLER_BUTTON_X:
-        {
-          _LegoTruck -> SetModeSelf ();
-        }
-
-        case SDL_CONTROLLER_BUTTON_Y:
-        {
-          _LegoTruck -> SetModeControlled ();
         }
       }
 
