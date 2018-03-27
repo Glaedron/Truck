@@ -42,6 +42,8 @@ Mainloop::~Mainloop ()
   SDL_DestroyRenderer (_Renderer);
   SDL_GameControllerClose (_Controller);
 
+  _LegoTruck -> Stop ();
+
   delete _LegoTruck;
 
   SDL_Quit ();
@@ -114,11 +116,7 @@ bool Mainloop::Init ()
 
 void Mainloop::Test ()
 {
-//  _LegoTruck -> Test ();
-
-//  _LegoTruck -> PWMTest ();
-
-  _LegoTruck -> WheelTest ();
+  _LegoTruck -> SetModeTest ();
 }
 
 void Mainloop::Input ()
@@ -133,6 +131,9 @@ void Mainloop::Input ()
     {
       Run = false;
 
+      _LegoTruck -> SetModeControlled ();
+      _LegoTruck -> Stop ();
+
       break;
     }
 
@@ -143,6 +144,9 @@ void Mainloop::Input ()
         case SDLK_ESCAPE:
         {
           Run = false;
+
+          _LegoTruck -> SetModeControlled ();
+          _LegoTruck -> Stop ();
 
           break;
         }
