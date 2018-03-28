@@ -5,7 +5,18 @@ class Sprite
     Sprite ();
     Sprite (SDL_Renderer* renderer);
 
-    void SetPos (int x, int y);
+    SDL_Rect GetSpriteRect ()
+    {
+      return _TextureRect;
+    }
+
+    SDL_Rect GetTextRect ()
+    {
+      return _TextboxRect;
+    }
+
+    void SetSpritePos (int x, int y);
+    void SetTextPos (int x, int y);
     void Load (std::string path);
     
     void RenderSprite ();
@@ -47,7 +58,13 @@ Sprite::Sprite (SDL_Renderer* renderer)
   }
 }
 
-void Sprite::SetPos (int x, int y)
+void Sprite::SetSpritePos (int x, int y)
+{
+  _TextureRect.x = x;
+  _TextureRect.y = y;
+}
+
+void Sprite::SetTextPos (int x, int y)
 {
   _TextboxRect.x = x;
   _TextboxRect.y = y;

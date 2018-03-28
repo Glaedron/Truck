@@ -24,7 +24,7 @@ class Truck
 
     SDL_Rect GetRect ()
     {
-      return _TruckRect;
+      return _Truck.GetSpriteRect ();
     }
 
     void SetModeSelf ()
@@ -69,10 +69,9 @@ class Truck
     SDL_GameController* _Controller = nullptr;
     SDL_Joystick* _Joystick = nullptr;
 
-    SDL_Texture* _Truck;
-    SDL_Rect _TruckRect;
-
     SDL_Renderer *_Renderer = nullptr;
+
+    Sprite _Truck;
 
     Sensor _Right;
     Sensor _FrontRight;
@@ -108,8 +107,8 @@ Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
   _PWMEngine = Engine (0, 3, 23);
   _Power = Switch (9);
 
-  _Truck = IMG_LoadTexture (_Renderer, "Unterlagen/Truck.png");
-  SDL_QueryTexture (_Truck, 0, 0, &_TruckRect.w, &_TruckRect.h);
+  _Truck = Sprite (_Renderer);
+  _Truck.Load ("Unterlagen/Truck.png");
 }
 
 Truck::~Truck ()
@@ -168,8 +167,7 @@ void Truck::Stop()
 
 void Truck::SetPos (int x, int y)
 {
-  _TruckRect.x = x;
-  _TruckRect.y = y;
+  _Truck.SetSpritePos (x, y);
 }
 
 void Truck::Input (SDL_Event event)
@@ -211,11 +209,11 @@ void Truck::Input (SDL_Event event)
 
 void Truck::Update ()
 {
-  _Left.SetPos (_TruckRect.x, (_TruckRect.h / 2) + _TruckRect.x);
-  _FrontLeft.SetPos (_TruckRect.x, _TruckRect.y);
-  _Front.SetPos ((_TruckRect.x) + (_TruckRect.w / 2), _TruckRect.y);
-  _FrontRight.SetPos ((_TruckRect.x) + (_TruckRect.w), _TruckRect.y);
-  _Right.SetPos ((_TruckRect.x) + (_TruckRect.w), (_TruckRect.h / 2) + _TruckRect.x);
+  _Left.SetPos (_Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
+  _FrontLeft.SetPos (_Truck.GetSpriteRect ().x, _Truck.GetSpriteRect ().y);
+  _Front.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w / 2), _Truck.GetSpriteRect ().y);
+  _FrontRight.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), _Truck.GetSpriteRect ().y);
+  _Right.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
 
   _Left.Update ();
   _FrontLeft.Update ();
@@ -246,7 +244,7 @@ void Truck::Update ()
 
 void Truck::Render ()
 {
-  SDL_RenderCopy (_Renderer, _Truck, NULL, &_TruckRect);
+  _Truck.RenderSprite ();
 
   _Left.Render ();
   _FrontLeft.Render ();
