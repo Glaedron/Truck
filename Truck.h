@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2//SDL_ttf.h>
 #include <sstream>
+#include "Sprite.h"
 #include "Sensor.h"
 #include "Engine.h"
 #include "Wheel.h"
