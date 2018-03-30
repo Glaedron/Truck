@@ -16,7 +16,6 @@ class Engine
   int _PinForward;
   int _PinBackward;
   int _PinPWM;
-  float _Speed;
 };
 
 Engine::Engine ()
@@ -63,6 +62,8 @@ void Engine::SetSpeed (float Speed)
 
 void Engine::Stop ()
 {
+  SetSpeed (0);
+
   digitalWrite (_PinForward,0);
   digitalWrite (_PinBackward,0);
 }

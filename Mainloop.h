@@ -154,6 +154,21 @@ void Mainloop::Input ()
 
       break;
     }
+
+    case SDL_CONTROLLERBUTTONDOWN:
+    {
+      switch (_Event.cbutton.button)
+      {
+        case SDL_CONTROLLER_BUTTON_X:
+        {
+          Run = false;
+
+          break;
+        }
+      }
+
+      break;
+    }
   }
 }
 

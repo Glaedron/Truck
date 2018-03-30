@@ -59,15 +59,13 @@ class Truck
     void Render ();
 
     void Test();
-    void PWMTest();
-    void WheelTest ();
 
   private:
 
-    void Drive ();
+    void Self ();
+    void Controlled ();
 
     SDL_GameController* _Controller = nullptr;
-    SDL_Joystick* _Joystick = nullptr;
 
     SDL_Renderer *_Renderer = nullptr;
 
@@ -80,9 +78,14 @@ class Truck
     Sensor _Left;
 
     Wheel _Wheel;
-    Engine _PWMEngine;
     Engine _Engine;
     Switch _Power;
+
+    float _SpeedF;
+    float _SpeedB;
+
+    int _WheelPosL;
+    int _WheelPosR;
 
     bool ModeSelf = 0;
     bool ModeControlled = 0;
@@ -94,8 +97,6 @@ Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
   _Renderer = renderer;
   _Controller = controller;
 
-  _Joystick = SDL_GameControllerGetJoystick (_Controller);
-
   _Right = Sensor (28, 27, _Renderer);
   _FrontRight = Sensor (11, 31, _Renderer);
   _Front = Sensor (10, 6, _Renderer);
@@ -103,8 +104,7 @@ Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
   _Left = Sensor (16, 15, _Renderer);
 
   _Wheel = Wheel (12, 14, 25);
-  _Engine = Engine (0, 3);
-  _PWMEngine = Engine (0, 3, 23);
+  _Engine = Engine (0, 3, 23);
   _Power = Switch (9);
 
   _Truck = Sprite (_Renderer);
@@ -115,7 +115,7 @@ Truck::~Truck ()
 {
 }
 
-void Truck::Drive()
+void Truck::Self ()
 {
   if (_Power.GetState() == true)
   {
@@ -158,11 +158,84 @@ void Truck::Drive()
   }
 }
 
+void Truck::Controlled ()
+{
+  if (_SpeedF > 15 && _SpeedF < 50)
+  {
+    _SpeedF = 50;
+  }
+
+  if (_SpeedF <= 15)
+  {
+    _SpeedF = 0;
+  }
+
+  if (_SpeedF >= 50)
+  {
+    _Engine.SetSpeed (_SpeedF);
+    _Engine.Forward ();
+  }
+
+  if (_SpeedF == 0)
+  {
+    _Engine.Stop ();
+  }
+
+
+
+
+  if (_SpeedB > 15 && _SpeedB < 50)
+  {
+    _SpeedB = 50;
+  }
+
+  if (_SpeedB <= 15)
+  {
+    _SpeedB = 0;
+  }
+
+  if (_SpeedB >= 50)
+  {
+    _Engine.SetSpeed (_SpeedB);
+    _Engine.Backward ();
+  }
+
+  if (_SpeedB == 0)
+  {
+    _Engine.Stop ();
+  }
+
+
+
+
+  if (_WheelPosL < 3)
+  {
+    _WheelPosL = 0;
+  }
+
+  if (_WheelPosL >= 3)
+  {
+    _Wheel.Left (_WheelPosL);
+  }
+
+
+
+
+  if (_WheelPosR < 3)
+  {
+    _WheelPosR = 0;
+  }
+
+  if (_WheelPosR >= 3)
+  {
+    _Wheel.Right (_WheelPosR);
+  }
+}
+
 void Truck::Stop()
 {
   _Wheel.Middle ();
   _Engine.Stop ();
-  _PWMEngine.Stop ();
 }
 
 void Truck::SetPos (int x, int y)
@@ -178,24 +251,19 @@ void Truck::Input (SDL_Event event)
     {
       switch (event.cbutton.button)
       {
-        case SDL_CONTROLLER_BUTTON_A:
-        {
-        }
-
-        case SDL_CONTROLLER_BUTTON_B:
-        {
-        }
-
-        case SDL_CONTROLLER_BUTTON_X:
-        {
-          SetModeSelf ();
-
-          break;
-        }
-
         case SDL_CONTROLLER_BUTTON_Y:
         {
-          SetModeControlled ();
+          if (ModeControlled == 0 && ModeTest == 0)
+          {
+            SetModeControlled ();
+            std::cout <<" Controlled "<< std::endl;
+          }
+
+          else if (ModeSelf == 0 && ModeTest == 0)
+          {
+            SetModeSelf ();
+            std::cout <<" Self "<< std::endl;
+          }
 
           break;
         }
@@ -204,39 +272,77 @@ void Truck::Input (SDL_Event event)
       break;
     }
 
+    case SDL_CONTROLLERAXISMOTION:
+    {
+      switch (event.caxis.axis)
+      {
+        case SDL_CONTROLLER_AXIS_LEFTY:
+        {
+          if (event.caxis.value < 0 && event.caxis.value > -32768)
+          {
+            _SpeedB = 0;
+            _SpeedF = (event.caxis.value * 100) / -32768;
+          }
+
+          if (event.caxis.value > 0 && event.caxis.value < 32767)
+          {
+            _SpeedF = 0;
+            _SpeedB = (event.caxis.value * 100) / 32767;
+          }
+
+          break;
+        }
+
+        case SDL_CONTROLLER_AXIS_RIGHTX:
+        {
+          if (event.caxis.value < 0 && event.caxis.value > -32768)
+          {
+            _WheelPosR = 0;
+            _WheelPosL = (int)(event.caxis.value * 7) / -32768;
+          }
+
+          if (event.caxis.value > 0 && event.caxis.value < 32767)
+          {
+            _WheelPosL = 0;
+            _WheelPosR = (int)(event.caxis.value * 7) / 32767;
+          }
+
+          break;
+        }
+      }
+
+      break;
+    }
   }
 }
 
 void Truck::Update ()
 {
-  _Left.SetPos (_Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
-  _FrontLeft.SetPos (_Truck.GetSpriteRect ().x, _Truck.GetSpriteRect ().y);
-  _Front.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w / 2), _Truck.GetSpriteRect ().y);
-  _FrontRight.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), _Truck.GetSpriteRect ().y);
-  _Right.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
-
-  _Left.Update ();
-  _FrontLeft.Update ();
-  _Front.Update ();
-  _FrontRight.Update ();
-  _Right.Update ();
-
   if (ModeSelf == 1)
   {
-    Drive ();
+    _Left.SetPos (_Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
+    _FrontLeft.SetPos (_Truck.GetSpriteRect ().x, _Truck.GetSpriteRect ().y);
+    _Front.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w / 2), _Truck.GetSpriteRect ().y);
+    _FrontRight.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), _Truck.GetSpriteRect ().y);
+    _Right.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
+
+    _Left.Update ();
+    _FrontLeft.Update ();
+    _Front.Update ();
+    _FrontRight.Update ();
+    _Right.Update ();
+
+    Self ();
   }
 
   else if (ModeControlled == 1)
   {
+    Controlled ();
   }
 
   else if (ModeTest == 1)
   {
     Test ();
-
-    PWMTest ();
-
-    WheelTest ();
 
     SetModeSelf ();
   }
@@ -255,41 +361,10 @@ void Truck::Render ()
 
 void Truck::Test()
 {
-  _Engine.Forward ();
-
-  delay (1000);
-
-  _Engine.Backward ();
-
-  delay (1000);
-
-  Stop ();
-
-  _Wheel.Right (7);
-
-  delay (1000);
-
-  _Wheel.Middle ();
-
-  delay (1000);
-
-  _Wheel.Left (7);
-
-  delay (1000);
-
-  _Wheel.Middle ();
-
-  delay (1000);
-
-  Stop ();
-}
-
-void Truck::PWMTest()
-{
   for (int forward = 15; forward < 100; forward++)
   {
-    _PWMEngine.Forward ();
-    _PWMEngine.SetSpeed (forward);
+    _Engine.Forward ();
+    _Engine.SetSpeed (forward);
 
     delay (100);
   }
@@ -299,17 +374,14 @@ void Truck::PWMTest()
 
   for (int backward = 15; backward < 100; backward++)
   {
-    _PWMEngine.Backward ();
-    _PWMEngine.SetSpeed (backward);
+    _Engine.Backward ();
+    _Engine.SetSpeed (backward);
 
     delay (100);
   }
 
   Stop ();
-}
 
-void Truck::WheelTest ()
-{
   for (int counterL = 0; counterL <= 7; counterL++)
   {
     _Wheel.Left (counterL);

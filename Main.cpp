@@ -22,7 +22,7 @@ int main()
 
     FPSLimitation.Update ();
     
-    SDL_Delay ((1000 / 20) - FPSLimitation.GetElapsedMilliSeconds ());
+    //SDL_Delay ((1000 / 20) - FPSLimitation.GetElapsedMilliSeconds ());
 
     FPS.Update ();
     //std::cout << 1000 / FPS.GetElapsedMilliSeconds () << std::endl;
