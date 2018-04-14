@@ -107,7 +107,7 @@ Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
   _FrontLeft = Sensor (5, 4, _Renderer);
   _Left = Sensor (16, 15, _Renderer);
 
-  _Wheel = Wheel (12, 14, 25);
+  _Wheel = Wheel (12, 14, 25, _Renderer);
   _Engine = Engine (0, 3, 23, _Renderer);
   _Power = Switch (9);
 
@@ -331,7 +331,7 @@ void Truck::Input (SDL_Event event)
 void Truck::Update ()
 {
   _Engine.SetPos ((_Truck.GetSpriteRect ().w / 2) + _Truck.GetSpriteRect ().x, _Truck.GetSpriteRect ().h + _Truck.GetSpriteRect ().y);
-
+  _Wheel.SetPos ((_Truck.GetSpriteRect ().w / 2) + _Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 5) + _Truck.GetSpriteRect ().y);
   if (ModeSelf == 1)
   {
     _Left.SetPos (_Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
@@ -371,6 +371,7 @@ void Truck::Render ()
   _Mode.RenderText (Mode);
 
   _Engine.Render ();
+  _Wheel.Render ();
 
   if (ModeSelf == 1)
   {

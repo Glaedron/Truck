@@ -188,16 +188,10 @@ void Mainloop::Input ()
 
 void Mainloop::Update ()
 {
-  Crashlog.Write ("MainloopUpdate1");
-
   _LegoTruck -> SetPos ((_Current.w / 4) - (_LegoTruck -> GetRect ().w / 2), (_Current.h / 2) - (_LegoTruck -> GetRect ().h / 2));
   _LegoTruck -> Update ();
 
-  Crashlog.Write ("MainloopUpdate2");
-
   _RunningTime.Update ();
-
-  Crashlog.Write ("MainloopUpdate3");
 
   RunningTime += _RunningTime.GetElapsedMilliSeconds ();
 
@@ -226,33 +220,19 @@ void Mainloop::Update ()
   Time = _StrStr.str ();
 
   _StrStr.str ("");
-
-  Crashlog.Write ("MainloopUpdate4");
 }
 
 void Mainloop::Render ()
 {
-  Crashlog.Write ("MainloopRender1");
-
   SDL_SetRenderDrawColor (_Renderer, 0, 0, 200, 255);
   SDL_RenderClear (_Renderer);
-
-  Crashlog.Write ("MainloopRender2");
 
   SDL_SetRenderDrawColor (_Renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
   SDL_RenderDrawLine (_Renderer, (_Current.w / 2), 0, (_Current.w / 2), _Current.h);
 
-  Crashlog.Write ("MainloopRender3");
-
   _LegoTruck -> Render ();
-
-  Crashlog.Write ("MainloopRender4");
 
   _Time.RenderText (Time);
 
-  Crashlog.Write ("MainloopRender5");
-
   SDL_RenderPresent (_Renderer);
-
-  Crashlog.Write ("MainloopRender6");
 }

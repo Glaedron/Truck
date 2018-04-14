@@ -3,17 +3,26 @@ class Wheel
   public:
 
     Wheel ();
-    Wheel (int PinLeft, int PinRight, int PinPWM);
+    Wheel (int PinLeft, int PinRight, int PinPWM, SDL_Renderer* renderer);
 	
     void Left (int position);
     void Right (int position);
     void Middle ();
+
+    void Render ();
+
+    void SetPos (int x, int y);
 	
   private:
 	
     int _PinLeft;
     int _PinRight;
     int _PinPWM;
+
+    SDL_Renderer* _Renderer = nullptr;
+
+    Sprite _Direction;
+    std::string Direction;
 
     double _Range = 10.204;
     double _Positions [8] = {
@@ -32,8 +41,12 @@ Wheel::Wheel ()
 {
 }
 
-Wheel::Wheel (int PinLeft, int PinRight, int PinPWM)
+Wheel::Wheel (int PinLeft, int PinRight, int PinPWM, SDL_Renderer* renderer)
 {
+  _Renderer = renderer;
+
+  _Direction = Sprite (_Renderer);
+
   _PinLeft = PinLeft;
   _PinRight = PinRight;
   _PinPWM = PinPWM;
@@ -58,6 +71,8 @@ void Wheel::Left (int position)
   softPwmWrite (_PinPWM, _Positions [position]);
   digitalWrite (_PinLeft,1);
   digitalWrite (_PinRight,0);
+
+  Direction = "<===";
 }
 
 void Wheel::Right (int position)
@@ -75,6 +90,8 @@ void Wheel::Right (int position)
   softPwmWrite (_PinPWM, _Positions [position]);
   digitalWrite (_PinLeft,0);
   digitalWrite (_PinRight,1);
+
+  Direction = "===>";
 }
 
 void Wheel::Middle ()
@@ -82,4 +99,16 @@ void Wheel::Middle ()
   softPwmWrite (_PinPWM, 0);
   digitalWrite (_PinLeft,0);
   digitalWrite (_PinRight,0);
+
+  Direction = "^";
+}
+
+void Wheel::Render ()
+{
+  _Direction.RenderText (Direction);
+}
+
+void Wheel::SetPos (int x, int y)
+{
+  _Direction.SetTextPos (x, y);
 }
