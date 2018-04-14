@@ -108,7 +108,7 @@ Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
   _Left = Sensor (16, 15, _Renderer);
 
   _Wheel = Wheel (12, 14, 25);
-  _Engine = Engine (0, 3, 23);
+  _Engine = Engine (0, 3, 23, _Renderer);
   _Power = Switch (9);
 
   _Truck = Sprite (_Renderer);
@@ -129,25 +129,23 @@ void Truck::Self ()
 {
   Mode = "Selfdriving";
 
-  _Engine.SetSpeed (100);
-
   if (_Power.GetState() == true)
   {
     if (_Front.GetVal () > 60 && _Right.GetVal () > 10 && _Left.GetVal () > 10)
     {
-      _Engine.Forward();
+      _Engine.Forward(100);
       _Wheel.Middle();
     }
 
     if ((_Front.GetVal () > 20 && _Front.GetVal () < 60 && _Right.GetVal () > _Left.GetVal ()) || (_Front.GetVal () > 20 && _Left.GetVal () < 10))
     {
-      _Engine.Forward();
+      _Engine.Forward(100);
       _Wheel.Right(7);
     }
 
     if ((_Front.GetVal () > 20 && _Front.GetVal () < 60 && _Left.GetVal () > _Right.GetVal ()) || (_Front.GetVal () > 20 && _Right.GetVal () < 10))
     {
-      _Engine.Forward();
+      _Engine.Forward(100);
       _Wheel.Left(7);
     }
 /*
@@ -157,13 +155,13 @@ void Truck::Self ()
       {
         if (_Front.GetVal () < 40 && _Right.GetVal () > _Left.GetVal ())
 	{
-	  _Engine.Backward();
+	  _Engine.Backward(100);
 	  _Wheel.Right(7);
 	}
 
         if (_Front.GetVal () < 40 && _Left.GetVal () > _Right.GetVal ())
 	{
-	  _Engine.Backward();
+	  _Engine.Backward(100);
 	  _Wheel.Left(7);
 	}
       }
@@ -188,8 +186,7 @@ void Truck::Controlled ()
 
   if (_SpeedF >= 50)
   {
-    _Engine.SetSpeed (_SpeedF);
-    _Engine.Forward ();
+    _Engine.Forward (_SpeedF);
   }
 
   if (_SpeedF == 0)
@@ -212,8 +209,7 @@ void Truck::Controlled ()
 
   if (_SpeedB >= 50)
   {
-    _Engine.SetSpeed (_SpeedB);
-    _Engine.Backward ();
+    _Engine.Backward (_SpeedB);
   }
 
   if (_SpeedB == 0)
@@ -334,6 +330,8 @@ void Truck::Input (SDL_Event event)
 
 void Truck::Update ()
 {
+  _Engine.SetPos ((_Truck.GetSpriteRect ().w / 2) + _Truck.GetSpriteRect ().x, _Truck.GetSpriteRect ().h + _Truck.GetSpriteRect ().y);
+
   if (ModeSelf == 1)
   {
     _Left.SetPos (_Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
@@ -372,6 +370,8 @@ void Truck::Render ()
 
   _Mode.RenderText (Mode);
 
+  _Engine.Render ();
+
   if (ModeSelf == 1)
   {
     _Left.Render ();
@@ -388,8 +388,7 @@ void Truck::Test()
 
   for (int forward = 15; forward < 100; forward++)
   {
-    _Engine.Forward ();
-    _Engine.SetSpeed (forward);
+    _Engine.Forward (forward);
 
     delay (100);
   }
@@ -399,8 +398,7 @@ void Truck::Test()
 
   for (int backward = 15; backward < 100; backward++)
   {
-    _Engine.Backward ();
-    _Engine.SetSpeed (backward);
+    _Engine.Backward (backward);
 
     delay (100);
   }

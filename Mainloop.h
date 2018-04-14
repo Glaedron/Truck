@@ -91,6 +91,7 @@ bool Mainloop::Init ()
   {
     if (SDL_GetCurrentDisplayMode (i, &_Current) == 0)
     {
+      _Current.h -= 70;
       _Window = SDL_CreateWindow ("*TRUCK*", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _Current.w, _Current.h, SDL_WINDOW_RESIZABLE);
     }
   }
@@ -116,6 +117,8 @@ bool Mainloop::Init ()
       }
     }
   }
+
+  //std::cout <<SDL_GameControllerAddMappingsFromFile ("/home/pi/Truck/Unterlagen/Mappings.txt")<< std::endl;
 
   _LegoTruck = new Truck (_Renderer, _Controller);
   _Time = Sprite (_Renderer);

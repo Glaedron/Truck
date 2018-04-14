@@ -3,15 +3,23 @@ class Engine
   public:
 
   Engine ();
-  Engine (int PinForward, int PinBackward);
-  Engine (int PinForward, int PinBackward, int PinPWM);
+  Engine (int PinForward, int PinBackward, int PinPWM, SDL_Renderer* renderer);
 
-  void Forward ();
-  void Backward ();
-  void SetSpeed (float Speed);
+  void Forward (float speed);
+  void Backward (float speed);
   void Stop ();
 
+  void Render ();
+
+  void SetPos (int x, int y);
+
   private:
+
+  SDL_Renderer* _Renderer;
+
+  Sprite _Engine;
+
+  float _Speed;
 
   int _PinForward;
   int _PinBackward;
@@ -22,17 +30,12 @@ Engine::Engine ()
 {
 }
 
-Engine::Engine (int PinForward, int PinBackward)
+Engine::Engine (int PinForward, int PinBackward, int PinPWM, SDL_Renderer* renderer)
 {
-  _PinForward = PinForward;
-  _PinBackward = PinBackward;
+  _Renderer = renderer;
 
-  pinMode (_PinForward, OUTPUT);
-  pinMode (_PinBackward, OUTPUT);
-}
+  _Engine = Sprite (_Renderer);
 
-Engine::Engine (int PinForward, int PinBackward, int PinPWM)
-{
   _PinForward = PinForward;
   _PinBackward = PinBackward;
   _PinPWM = PinPWM;
@@ -43,27 +46,39 @@ Engine::Engine (int PinForward, int PinBackward, int PinPWM)
   softPwmCreate (_PinPWM, 100, 100);
 }
 
-void Engine::Forward ()
+void Engine::Forward (float speed)
 {
+  _Speed = speed;
+  softPwmWrite (_PinPWM, _Speed);
+
   digitalWrite (_PinForward,1);
   digitalWrite (_PinBackward,0);
 }
 
-void Engine::Backward ()
+void Engine::Backward (float speed)
 {
+  _Speed = speed;
+  softPwmWrite (_PinPWM, _Speed);
+
   digitalWrite (_PinForward,0);
   digitalWrite (_PinBackward,1);
 }
 
-void Engine::SetSpeed (float Speed)
-{
-  softPwmWrite (_PinPWM, Speed);
-}
-
 void Engine::Stop ()
 {
-  SetSpeed (0);
+  _Speed = 0;
+  softPwmWrite (_PinPWM, _Speed);
 
   digitalWrite (_PinForward,0);
   digitalWrite (_PinBackward,0);
+}
+
+void Engine::Render ()
+{
+  _Engine.RenderText (_Speed);
+}
+
+void Engine::SetPos (int x, int y)
+{
+  _Engine.SetTextPos (x, y);
 }
