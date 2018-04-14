@@ -61,6 +61,9 @@ class Truck
 
     void Test();
 
+    bool GetModeSelf () { return ModeSelf; }
+    bool GetModeControlled () { return ModeControlled; }
+
   private:
 
     void Self ();
@@ -189,7 +192,7 @@ void Truck::Controlled ()
     _Engine.Forward (_SpeedF);
   }
 
-  if (_SpeedF == 0)
+  if (_SpeedF == 0 && _SpeedB == 0)
   {
     _Engine.Stop ();
   }
@@ -212,7 +215,7 @@ void Truck::Controlled ()
     _Engine.Backward (_SpeedB);
   }
 
-  if (_SpeedB == 0)
+  if (_SpeedB == 0 && _SpeedF == 0)
   {
     _Engine.Stop ();
   }
@@ -220,9 +223,10 @@ void Truck::Controlled ()
 
 
 
-  if (_WheelPosL < 3)
+  if (_WheelPosL < 3 && _WheelPosR < 3)
   {
     _WheelPosL = 0;
+    _Wheel.Middle ();
   }
 
   if (_WheelPosL >= 3)
@@ -233,9 +237,10 @@ void Truck::Controlled ()
 
 
 
-  if (_WheelPosR < 3)
+  if (_WheelPosR < 3 && _WheelPosL < 3)
   {
     _WheelPosR = 0;
+    _Wheel.Middle ();
   }
 
   if (_WheelPosR >= 3)

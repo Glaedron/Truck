@@ -37,7 +37,9 @@ class Mainloop
     long double RunningTime = 0;
     
     Timer _RunningTime;
+    Timer _GameTime;
     Sprite _Time;
+    Sprite _FPS;
 };
 
 bool Mainloop::init = 0;
@@ -122,6 +124,7 @@ bool Mainloop::Init ()
 
   _LegoTruck = new Truck (_Renderer, _Controller);
   _Time = Sprite (_Renderer);
+  _FPS = Sprite (_Renderer);
 
   Run = true;
 
@@ -177,6 +180,9 @@ void Mainloop::Input ()
         {
           Run = false;
 
+          _LegoTruck -> SetModeControlled ();
+          _LegoTruck -> Stop ();
+
           break;
         }
       }
@@ -188,14 +194,14 @@ void Mainloop::Input ()
 
 void Mainloop::Update ()
 {
+  _Time.SetTextPos (100, 100);
+  _FPS.SetTextPos (100, 200);
   _LegoTruck -> SetPos ((_Current.w / 4) - (_LegoTruck -> GetRect ().w / 2), (_Current.h / 2) - (_LegoTruck -> GetRect ().h / 2));
   _LegoTruck -> Update ();
 
   _RunningTime.Update ();
 
   RunningTime += _RunningTime.GetElapsedMilliSeconds ();
-
-  _Time.SetTextPos (100, 100);
 
   if (RunningTime >= 1000)
   {
@@ -233,6 +239,18 @@ void Mainloop::Render ()
   _LegoTruck -> Render ();
 
   _Time.RenderText (Time);
+
+  if (_LegoTruck -> GetModeSelf () == true)
+  {
+    _GameTime.FPS (15);
+  }
+
+  else if (_LegoTruck -> GetModeControlled () == true)
+  {
+    _GameTime.FPS (60);
+  }
+
+  _FPS.RenderText (_GameTime.GetFPS ());
 
   SDL_RenderPresent (_Renderer);
 }
