@@ -28,6 +28,16 @@ class Mainloop
     SDL_Renderer* _Renderer = nullptr;
 
     Truck* _LegoTruck = nullptr;
+
+    std::stringstream _StrStr;
+    std::string Time;
+    int sec = 0;
+    int min = 0;
+    int h = 0;
+    long double RunningTime = 0;
+    
+    Timer _RunningTime;
+    Sprite _Time;
 };
 
 bool Mainloop::init = 0;
@@ -108,6 +118,7 @@ bool Mainloop::Init ()
   }
 
   _LegoTruck = new Truck (_Renderer, _Controller);
+  _Time = Sprite (_Renderer);
 
   Run = true;
 
@@ -174,19 +185,71 @@ void Mainloop::Input ()
 
 void Mainloop::Update ()
 {
+  Crashlog.Write ("MainloopUpdate1");
+
   _LegoTruck -> SetPos ((_Current.w / 4) - (_LegoTruck -> GetRect ().w / 2), (_Current.h / 2) - (_LegoTruck -> GetRect ().h / 2));
   _LegoTruck -> Update ();
+
+  Crashlog.Write ("MainloopUpdate2");
+
+  _RunningTime.Update ();
+
+  Crashlog.Write ("MainloopUpdate3");
+
+  RunningTime += _RunningTime.GetElapsedMilliSeconds ();
+
+  _Time.SetTextPos (100, 100);
+
+  if (RunningTime >= 1000)
+  {
+    RunningTime -= 1000;
+    sec += 1;
+  }
+
+  if (sec > 59)
+  {
+    sec -= 60;
+    min += 1;
+  }
+
+  if (min > 59)
+  {
+    min -= 60;
+    h += 1;
+  }
+
+  _StrStr << h <<":"<< min <<":"<< sec;
+
+  Time = _StrStr.str ();
+
+  _StrStr.str ("");
+
+  Crashlog.Write ("MainloopUpdate4");
 }
 
 void Mainloop::Render ()
 {
+  Crashlog.Write ("MainloopRender1");
+
   SDL_SetRenderDrawColor (_Renderer, 0, 0, 200, 255);
   SDL_RenderClear (_Renderer);
+
+  Crashlog.Write ("MainloopRender2");
 
   SDL_SetRenderDrawColor (_Renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
   SDL_RenderDrawLine (_Renderer, (_Current.w / 2), 0, (_Current.w / 2), _Current.h);
 
+  Crashlog.Write ("MainloopRender3");
+
   _LegoTruck -> Render ();
 
+  Crashlog.Write ("MainloopRender4");
+
+  _Time.RenderText (Time);
+
+  Crashlog.Write ("MainloopRender5");
+
   SDL_RenderPresent (_Renderer);
+
+  Crashlog.Write ("MainloopRender6");
 }

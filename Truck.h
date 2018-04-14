@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2//SDL_ttf.h>
 #include <sstream>
+#include "Timer.h"
 #include "Sprite.h"
 #include "Sensor.h"
 #include "Engine.h"
@@ -70,6 +71,7 @@ class Truck
     SDL_Renderer *_Renderer = nullptr;
 
     Sprite _Truck;
+    Sprite _Mode;
 
     Sensor _Right;
     Sensor _FrontRight;
@@ -90,6 +92,8 @@ class Truck
     bool ModeSelf = 0;
     bool ModeControlled = 0;
     bool ModeTest = 0;
+
+    std::string Mode;
 };
 
 Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
@@ -108,7 +112,13 @@ Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
   _Power = Switch (9);
 
   _Truck = Sprite (_Renderer);
+  _Mode = Sprite (_Renderer);
   _Truck.Load ("Unterlagen/Truck.png");
+
+  if (!ModeTest)
+  {
+    SetModeSelf ();
+  }
 }
 
 Truck::~Truck ()
@@ -117,6 +127,10 @@ Truck::~Truck ()
 
 void Truck::Self ()
 {
+  Mode = "Selfdriving";
+
+  _Engine.SetSpeed (100);
+
   if (_Power.GetState() == true)
   {
     if (_Front.GetVal () > 60 && _Right.GetVal () > 10 && _Left.GetVal () > 10)
@@ -160,6 +174,8 @@ void Truck::Self ()
 
 void Truck::Controlled ()
 {
+  Mode = "Controlled";
+
   if (_SpeedF > 15 && _SpeedF < 50)
   {
     _SpeedF = 50;
@@ -346,21 +362,30 @@ void Truck::Update ()
 
     SetModeSelf ();
   }
+
+  _Mode.SetTextPos (100, 300);
 }
 
 void Truck::Render ()
 {
   _Truck.RenderSprite ();
 
-  _Left.Render ();
-  _FrontLeft.Render ();
-  _Front.Render ();
-  _FrontRight.Render ();
-  _Right.Render ();
+  _Mode.RenderText (Mode);
+
+  if (ModeSelf == 1)
+  {
+    _Left.Render ();
+    _FrontLeft.Render ();
+    _Front.Render ();
+    _FrontRight.Render ();
+    _Right.Render ();
+  }
 }
 
 void Truck::Test()
 {
+  Mode = "Test";
+
   for (int forward = 15; forward < 100; forward++)
   {
     _Engine.Forward ();

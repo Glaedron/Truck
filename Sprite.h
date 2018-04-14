@@ -110,6 +110,7 @@ void Sprite::RenderText (long double text)
   SDL_RenderCopy (_Renderer, _Message, NULL, &_MessageRect);
       
   SDL_FreeSurface (_Text);
+  SDL_DestroyTexture (_Message);
 }
 
 void Sprite::RenderText (std::string text)
@@ -137,4 +138,5 @@ void Sprite::RenderText (std::string text)
   SDL_RenderCopy (_Renderer, _Message, NULL, &_MessageRect);
       
   SDL_FreeSurface (_Text);
+  SDL_DestroyTexture (_Message);
 }
