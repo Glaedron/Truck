@@ -1,3 +1,0 @@
-MainloopInput
-MainloopUpdate
-MainloopRender

@@ -16,7 +16,7 @@ class Truck
 {
   public:
 
-    Truck (SDL_Renderer *renderer, SDL_GameController* controller);
+    Truck (SDL_Renderer *renderer);
     ~Truck ();
 
     void Stop ();
@@ -69,8 +69,6 @@ class Truck
     void Self ();
     void Controlled ();
 
-    SDL_GameController* _Controller = nullptr;
-
     SDL_Renderer *_Renderer = nullptr;
 
     Sprite _Truck;
@@ -99,10 +97,9 @@ class Truck
     std::string Mode;
 };
 
-Truck::Truck (SDL_Renderer *renderer, SDL_GameController* controller)
+Truck::Truck (SDL_Renderer *renderer)
 {
   _Renderer = renderer;
-  _Controller = controller;
 
   _Right = Sensor (28, 27, _Renderer);
   _FrontRight = Sensor (11, 31, _Renderer);
@@ -339,11 +336,11 @@ void Truck::Update ()
   _Wheel.SetPos ((_Truck.GetSpriteRect ().w / 2) + _Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 5) + _Truck.GetSpriteRect ().y);
   if (ModeSelf == 1)
   {
-    _Left.SetPos (_Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
+    _Left.SetPos (_Truck.GetSpriteRect ().x, (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().y);
     _FrontLeft.SetPos (_Truck.GetSpriteRect ().x, _Truck.GetSpriteRect ().y);
     _Front.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w / 2), _Truck.GetSpriteRect ().y);
     _FrontRight.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), _Truck.GetSpriteRect ().y);
-    _Right.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().x);
+    _Right.SetPos ((_Truck.GetSpriteRect ().x) + (_Truck.GetSpriteRect ().w), (_Truck.GetSpriteRect ().h / 2) + _Truck.GetSpriteRect ().y);
 
     _Left.Update ();
     _FrontLeft.Update ();
@@ -366,7 +363,7 @@ void Truck::Update ()
     SetModeSelf ();
   }
 
-  _Mode.SetTextPos (100, 300);
+  _Mode.SetTextPos (140, 300);
 }
 
 void Truck::Render ()

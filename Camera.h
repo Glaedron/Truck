@@ -15,6 +15,8 @@ class Camera
    Camera (SDL_Renderer* Renderer);
  
    SDL_Texture* GetFrame ();
+   void GetImageData (char *imgdata, std::string *pdata);
+
    void Test ();
 
   private:
@@ -33,9 +35,6 @@ class Camera
 Camera::Camera ()
 {
   _Cap = VideoCapture (0);
-
-  //_Cap.set (CV_CAP_PROP_AUTO_EXPOSURE, 0);
-  //_Cap.set (CV_CAP_PROP_SETTINGS , 1 );
 
   if (!_Cap.isOpened ())
   {
@@ -72,6 +71,18 @@ SDL_Texture* Camera::GetFrame ()
   SDL_FreeSurface (Surfacecam);
 
   return Texturecam;
+}
+
+void Camera::GetImageData (char *imgdata, std::string *pdata)
+{
+  _Cap >> _Frame;
+
+  _Frame.convertTo (_Frame8U, CV_8U);
+  CVcam1 = (IplImage)_Frame8U;
+  CVcam = &CVcam1;
+
+  sprintf (imgdata, " %d %d %d %d ", CVcam->width, CVcam->height, CVcam->depth * CVcam->nChannels, CVcam->widthStep);
+  *pdata = CVcam->imageData;
 }
 
 void Camera::Test ()

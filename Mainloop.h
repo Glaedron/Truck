@@ -36,10 +36,13 @@ class Mainloop
     int h = 0;
     long double RunningTime = 0;
     
+    bool _ControllerConnected = false;
+
     Timer _RunningTime;
     Timer _GameTime;
     Sprite _Time;
     Sprite _FPS;
+    Sprite _GameController;
 };
 
 bool Mainloop::init = 0;
@@ -52,7 +55,11 @@ Mainloop::~Mainloop ()
 {
   SDL_DestroyWindow (_Window);
   SDL_DestroyRenderer (_Renderer);
-  SDL_GameControllerClose (_Controller);
+
+  if (_Controller)
+  {
+    SDL_GameControllerClose (_Controller);
+  }
 
   _LegoTruck -> Stop ();
 
@@ -67,7 +74,7 @@ bool Mainloop::Init ()
   {
     if (SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) == -1)
     {
-      std::cout <<" error vid/timer"<< std::endl;
+      std::cout <<" error vid/timer/controller"<< std::endl;
 
       return 0;
     }
@@ -94,7 +101,7 @@ bool Mainloop::Init ()
     if (SDL_GetCurrentDisplayMode (i, &_Current) == 0)
     {
       _Current.h -= 70;
-      _Window = SDL_CreateWindow ("*TRUCK*", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _Current.w, _Current.h, SDL_WINDOW_RESIZABLE);
+      _Window = SDL_CreateWindow ("*TRUCK*", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _Current.w, _Current.h, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     }
   }
 	
@@ -120,11 +127,10 @@ bool Mainloop::Init ()
     }
   }
 
-  //std::cout <<SDL_GameControllerAddMappingsFromFile ("/home/pi/Truck/Unterlagen/Mappings.txt")<< std::endl;
-
-  _LegoTruck = new Truck (_Renderer, _Controller);
+  _LegoTruck = new Truck (_Renderer);
   _Time = Sprite (_Renderer);
   _FPS = Sprite (_Renderer);
+  _GameController = Sprite (_Renderer);
 
   Run = true;
 
@@ -162,6 +168,8 @@ void Mainloop::Input ()
         {
           Run = false;
 
+          std::cout <<"ESC"<< std::endl;
+
           _LegoTruck -> SetModeControlled ();
           _LegoTruck -> Stop ();
 
@@ -172,11 +180,21 @@ void Mainloop::Input ()
       break;
     }
 
+    case SDL_CONTROLLERDEVICEADDED:
+    {
+      break;
+    }
+
+    case SDL_CONTROLLERDEVICEREMOVED:
+    {
+      break;
+    }
+
     case SDL_CONTROLLERBUTTONDOWN:
     {
       switch (_Event.cbutton.button)
       {
-        case SDL_CONTROLLER_BUTTON_X:
+        case SDL_CONTROLLER_BUTTON_B:
         {
           Run = false;
 
@@ -194,8 +212,9 @@ void Mainloop::Input ()
 
 void Mainloop::Update ()
 {
-  _Time.SetTextPos (100, 100);
-  _FPS.SetTextPos (100, 200);
+  _Time.SetTextPos (140, 100);
+  _FPS.SetTextPos (140, 200);
+  _GameController.SetTextPos (140, 400);
   _LegoTruck -> SetPos ((_Current.w / 4) - (_LegoTruck -> GetRect ().w / 2), (_Current.h / 2) - (_LegoTruck -> GetRect ().h / 2));
   _LegoTruck -> Update ();
 
@@ -251,6 +270,21 @@ void Mainloop::Render ()
   }
 
   _FPS.RenderText (_GameTime.GetFPS ());
+
+  if (_Controller)
+  {
+    _GameController.RenderText ("GC: added");
+  }
+
+  else if (!_Controller)
+  {
+    _GameController.RenderText ("GC: removed");
+  }
+
+  else 
+  {
+    _GameController.RenderText ("GC: undefined");
+  }
 
   SDL_RenderPresent (_Renderer);
 }
